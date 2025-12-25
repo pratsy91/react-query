@@ -1,0 +1,321 @@
+import LessonLayout from '../../components/LessonLayout';
+import CodeBlock from '../../components/CodeBlock';
+
+export default function QuickReferencePage() {
+  return (
+    <LessonLayout
+      title="21.4 Quick Reference Guide"
+      description="Complete quick reference guide for all React Query concepts"
+    >
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">React Query Quick Reference</h2>
+        <p className="text-gray-700 mb-4">
+          Complete quick reference for all React Query concepts. Perfect for quick lookup during
+          interviews or development.
+        </p>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Setup</h2>
+        
+        <CodeBlock
+          title="Basic Setup"
+          code={`// 1. Install
+npm install @tanstack/react-query
+
+// 2. Create QueryClient
+import { QueryClient } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
+      retry: 3,
+    },
+  },
+});
+
+// 3. Wrap app with Provider
+import { QueryClientProvider } from '@tanstack/react-query';
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <YourApp />
+    </QueryClientProvider>
+  );
+}`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Key Concepts</h2>
+        
+        <div className="bg-gray-100 rounded-lg p-6 my-6">
+          <h3 className="text-xl font-semibold mb-3 text-gray-900">Core Concepts:</h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li><strong>Query Key</strong> - Unique identifier for cached data</li>
+            <li><strong>Query Function</strong> - Function that fetches data</li>
+            <li><strong>Stale Time</strong> - How long data is considered fresh</li>
+            <li><strong>GC Time</strong> - How long unused data stays in cache</li>
+            <li><strong>Cache</strong> - In-memory storage for query results</li>
+            <li><strong>Observer</strong> - Component subscribed to query</li>
+            <li><strong>Refetch</strong> - Re-execute query function</li>
+            <li><strong>Invalidation</strong> - Mark query as stale</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Query States</h2>
+        
+        <CodeBlock
+          title="Query State Values"
+          code={`// Status values
+'pending'   // Initial state, no data yet
+'error'     // Query failed
+'success'   // Query succeeded
+
+// Fetch status
+'idle'      // Not fetching
+'fetching'  // Currently fetching
+'paused'    // Fetching paused
+
+// Boolean flags
+isLoading   // Initial load (no cached data)
+isFetching  // Any fetch in progress
+isError     // Error state
+isSuccess   // Success state
+isPending    // Pending state (v5)
+isRefetching // Refetch in progress`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Common Options</h2>
+        
+        <CodeBlock
+          title="Most Used Options"
+          code={`// Query options
+{
+  queryKey: ['users'],                    // Required
+  queryFn: () => fetchUsers(),            // Required
+  staleTime: 1000 * 60 * 5,              // 5 minutes
+  gcTime: 1000 * 60 * 30,                // 30 minutes
+  enabled: true,                          // Enable/disable
+  retry: 3,                               // Retry attempts
+  refetchOnWindowFocus: true,             // Refetch on focus
+  refetchInterval: false,                 // Polling
+  select: (data) => data.users,           // Transform
+}
+
+// Mutation options
+{
+  mutationFn: (vars) => update(vars),     // Required
+  onSuccess: (data) => {},               // Success callback
+  onError: (error) => {},                // Error callback
+  onSettled: () => {},                   // Settled callback
+  retry: 3,                               // Retry attempts
+}`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">QueryClient Methods</h2>
+        
+        <CodeBlock
+          title="Essential Methods"
+          code={`const queryClient = useQueryClient();
+
+// Cache operations
+queryClient.getQueryData(['users'])           // Get data
+queryClient.setQueryData(['users'], data)     // Set data
+queryClient.removeQueries(['users'])         // Remove
+
+// Invalidation
+queryClient.invalidateQueries(['users'])      // Mark stale
+queryClient.refetchQueries(['users'])        // Refetch
+
+// Prefetching
+queryClient.prefetchQuery({...})            // Prefetch
+queryClient.fetchQuery({...})                // Fetch
+
+// Cache access
+queryClient.getQueryCache()                  // Get cache
+queryClient.getMutationCache()               // Get mutation cache`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Common Patterns</h2>
+        
+        <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Dependent Query</h3>
+        <CodeBlock
+          title="Dependent Query Pattern"
+          code={`const { data: user } = useQuery({
+  queryKey: ['user', userId],
+  queryFn: () => fetchUser(userId),
+});
+
+const { data: posts } = useQuery({
+  queryKey: ['user', userId, 'posts'],
+  queryFn: () => fetchPosts(userId),
+  enabled: !!user,  // Wait for user
+});`}
+        />
+
+        <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Optimistic Update</h3>
+        <CodeBlock
+          title="Optimistic Update Pattern"
+          code={`const mutation = useMutation({
+  mutationFn: updateUser,
+  onMutate: async (newData) => {
+    await queryClient.cancelQueries(['user', id]);
+    const previous = queryClient.getQueryData(['user', id]);
+    queryClient.setQueryData(['user', id], newData);
+    return { previous };
+  },
+  onError: (err, vars, context) => {
+    queryClient.setQueryData(['user', id], context.previous);
+  },
+  onSettled: () => {
+    queryClient.invalidateQueries(['user', id]);
+  },
+});`}
+        />
+
+        <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Invalidation After Mutation</h3>
+        <CodeBlock
+          title="Invalidation Pattern"
+          code={`const mutation = useMutation({
+  mutationFn: createUser,
+  onSuccess: () => {
+    queryClient.invalidateQueries(['users']);
+  },
+});`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Query Key Best Practices</h2>
+        
+        <CodeBlock
+          title="Query Key Patterns"
+          code={`// ✅ Good: Stable, hierarchical keys
+['users']                           // List
+['users', 1]                        // Single item
+['users', 1, 'posts']               // Related data
+['users', { status: 'active' }]     // With filters (serialized)
+
+// ✅ Use factories
+const queryKeys = {
+  users: ['users'] as const,
+  user: (id: number) => ['users', id] as const,
+};
+
+// ❌ Bad: Unstable keys
+['users', Date.now()]               // Changes every render
+['users', { id: 1 }]                // Object reference changes
+['users', () => Math.random()]      // Function reference changes`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Performance Tips</h2>
+        
+        <div className="bg-gray-100 rounded-lg p-6 my-6">
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li><strong>Use select</strong> - Transform data to reduce re-renders</li>
+            <li><strong>Set staleTime</strong> - Reduce unnecessary refetches</li>
+            <li><strong>Use pagination</strong> - Don't fetch all data at once</li>
+            <li><strong>Debounce search</strong> - Reduce API calls</li>
+            <li><strong>Prefetch on hover</strong> - Improve perceived performance</li>
+            <li><strong>Use structural sharing</strong> - Default, prevents unnecessary updates</li>
+            <li><strong>Limit cache size</strong> - Prevent memory issues</li>
+            <li><strong>Code split routes</strong> - Load queries on demand</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Common Mistakes to Avoid</h2>
+        
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 my-6">
+          <ul className="list-disc list-inside space-y-2 text-red-800">
+            <li>❌ Invalidating queries in onSuccess (causes infinite loops)</li>
+            <li>❌ Using unstable query keys (causes unnecessary refetches)</li>
+            <li>❌ Not cleaning up subscriptions (memory leaks)</li>
+            <li>❌ Missing dependencies in query keys (stale data)</li>
+            <li>❌ Using onSuccess/onError (deprecated, use useEffect)</li>
+            <li>❌ Not handling race conditions (stale data overwrites)</li>
+            <li>❌ Fetching too much data (performance issues)</li>
+            <li>❌ Not using select for transformations (unnecessary re-renders)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Version Differences</h2>
+        
+        <CodeBlock
+          title="v4 to v5 Changes"
+          code={`// v4 → v5 Changes:
+
+// 1. cacheTime → gcTime
+cacheTime: 1000 * 60 * 5  // v4
+gcTime: 1000 * 60 * 5     // v5
+
+// 2. mutation.isLoading → mutation.isPending
+mutation.isLoading  // v4
+mutation.isPending  // v5
+
+// 3. useInfiniteQuery requires initialPageParam
+useInfiniteQuery({
+  initialPageParam: 0,  // Required in v5
+  getNextPageParam: (lastPage) => lastPage.nextCursor,
+})
+
+// 4. onSuccess/onError deprecated
+// Use useEffect instead
+
+// 5. New Suspense hooks
+useSuspenseQuery()
+useSuspenseInfiniteQuery()
+useSuspenseQueries()`}
+        />
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold mb-4 text-gray-900">Interview Checklist</h2>
+        
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 my-6">
+          <h3 className="text-xl font-semibold mb-3 text-gray-900">Be Ready to Explain:</h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-700">
+            <li>✅ What React Query is and why use it</li>
+            <li>✅ Difference between isLoading and isFetching</li>
+            <li>✅ staleTime vs gcTime (cacheTime)</li>
+            <li>✅ How to handle dependent queries</li>
+            <li>✅ Optimistic updates pattern</li>
+            <li>✅ Query invalidation strategies</li>
+            <li>✅ Race condition handling</li>
+            <li>✅ Performance optimization techniques</li>
+            <li>✅ Error handling patterns</li>
+            <li>✅ Testing React Query hooks</li>
+            <li>✅ Query key best practices</li>
+            <li>✅ Common pitfalls and how to avoid them</li>
+          </ul>
+        </div>
+      </section>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 my-6">
+        <p className="text-green-800">
+          <strong>🎉 Complete! 🎉</strong> You've finished the entire React Query learning platform
+          including the interview cheatsheet! You're now fully prepared for React Query interviews
+          and ready to build amazing applications. Good luck! 🚀
+        </p>
+      </div>
+    </LessonLayout>
+  );
+}
+
