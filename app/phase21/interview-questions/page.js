@@ -18,6 +18,33 @@ export default function InterviewQuestionsPage() {
         <h2 className="text-3xl font-bold mb-4 text-gray-900">Fundamentals</h2>
         
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q1: What is React Query and why use it?</h3>
+        <p className="text-gray-700 mb-4">
+          React Query (TanStack Query) is a powerful data-fetching library that solves common problems in React applications. It eliminates the need to manually manage loading states, error handling, caching, and data synchronization.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Key Problems It Solves:</strong> Without React Query, you'd need to manually manage: loading states with useState, error handling with try/catch, caching with useMemo or external libraries, refetching logic, request deduplication, and cache invalidation. React Query handles all of this automatically.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Automatic Caching:</strong> React Query automatically caches all query results using query keys as identifiers. The cache is intelligent—it knows when data is fresh (within staleTime) and when it's stale. It automatically refetches stale data in the background when components mount or when the window regains focus.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Request Deduplication:</strong> If multiple components request the same data simultaneously (same query key), React Query makes only one network request and shares the result. This prevents duplicate API calls and reduces server load.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Background Refetching:</strong> React Query keeps data fresh automatically. When you navigate away and come back, it refetches in the background. When the window regains focus, it refetches stale data. This ensures users always see up-to-date information without manual intervention.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Optimistic Updates:</strong> React Query makes it easy to update the UI optimistically—showing changes immediately before the server responds. If the mutation fails, it can automatically rollback. This creates a snappy, responsive user experience.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Built-in States:</strong> React Query provides comprehensive state flags: <code className="bg-gray-100 px-1 rounded">isLoading</code>, <code className="bg-gray-100 px-1 rounded">isFetching</code>, <code className="bg-gray-100 px-1 rounded">isError</code>, <code className="bg-gray-100 px-1 rounded">isSuccess</code>, and more. No need to manually track these states.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Developer Experience:</strong> React Query significantly reduces boilerplate code. A simple query that would require 20+ lines of state management code becomes just a few lines. The DevTools provide excellent debugging capabilities, showing cache contents, query states, and network activity.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Real-World Benefits:</strong> In the example, a single <code className="bg-gray-100 px-1 rounded">useQuery</code> call automatically handles: fetching data, caching it, showing loading states, handling errors, retrying on failure, refetching on window focus, and deduplicating requests. This would require multiple useState hooks, useEffect hooks, error boundaries, and manual cache management without React Query.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// React Query (TanStack Query) is a data-fetching library for React
@@ -41,6 +68,24 @@ const { data, isLoading, error } = useQuery({
         />
 
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q2: What's the difference between isLoading and isFetching?</h3>
+        <p className="text-gray-700 mb-4">
+          Understanding the difference between <code className="bg-gray-100 px-1 rounded">isLoading</code> and <code className="bg-gray-100 px-1 rounded">isFetching</code> is crucial for proper UI feedback and user experience. These two flags serve different purposes and should be used in different scenarios.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>isLoading explained:</strong> <code className="bg-gray-100 px-1 rounded">isLoading</code> is <code className="bg-gray-100 px-1 rounded">true</code> only during the initial load when there's no cached data available. It represents the "first-time loading" state. Once data exists in cache (even if stale), <code className="bg-gray-100 px-1 rounded">isLoading</code> becomes <code className="bg-gray-100 px-1 rounded">false</code> immediately, even if the query is refetching in the background. This is because React Query shows cached data immediately while refetching happens in the background.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>isFetching explained:</strong> <code className="bg-gray-100 px-1 rounded">isFetching</code> is <code className="bg-gray-100 px-1 rounded">true</code> whenever any fetch is in progress, including: initial loads (when there's no cache), refetches (when data is stale), background refetches (on window focus), manual refetches (via <code className="bg-gray-100 px-1 rounded">refetch()</code>), and polling (when <code className="bg-gray-100 px-1 rounded">refetchInterval</code> is set). It represents the "network activity" state.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Practical scenarios:</strong> In Scenario 1 (first load with no cache), both <code className="bg-gray-100 px-1 rounded">isLoading</code> and <code className="bg-gray-100 px-1 rounded">isFetching</code> are <code className="bg-gray-100 px-1 rounded">true</code>—show a full loading spinner. In Scenario 2 (refetch with cached data), <code className="bg-gray-100 px-1 rounded">isLoading</code> is <code className="bg-gray-100 px-1 rounded">false</code> (data is shown from cache) but <code className="bg-gray-100 px-1 rounded">isFetching</code> is <code className="bg-gray-100 px-1 rounded">true</code> (refetching in background)—show a subtle indicator like a small spinner or "Updating..." text. In Scenario 3 (data loaded, no fetch), both are <code className="bg-gray-100 px-1 rounded">false</code>—show the data normally.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>When to use each:</strong> Use <code className="bg-gray-100 px-1 rounded">isLoading</code> for initial loading UI (full-page spinners, skeleton screens, disabling the entire UI). Use <code className="bg-gray-100 px-1 rounded">isFetching</code> for background update indicators (small spinners, "Syncing..." badges, subtle loading states that don't block the UI). This creates a better UX where users see data immediately from cache while fresh data loads in the background.
+        </p>
+        <p className="text-gray-700 mb-4">
+          <strong>Code example breakdown:</strong> The example shows how both flags behave in different scenarios. When <code className="bg-gray-100 px-1 rounded">isLoading</code> is true, you typically show a full loading state. When only <code className="bg-gray-100 px-1 rounded">isFetching</code> is true (and <code className="bg-gray-100 px-1 rounded">isLoading</code> is false), you show the cached data with a subtle indicator that fresh data is being fetched.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// isLoading: true only on initial load (no cached data)
@@ -65,6 +110,9 @@ const { data, isLoading, isFetching } = useQuery({
         />
 
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q3: Explain staleTime and gcTime (cacheTime)</h3>
+        <p className="text-gray-700 mb-4">
+          <code className="bg-gray-100 px-1 rounded">staleTime</code> and <code className="bg-gray-100 px-1 rounded">gcTime</code> (formerly <code className="bg-gray-100 px-1 rounded">cacheTime</code>) control different aspects of caching. <code className="bg-gray-100 px-1 rounded">staleTime</code> determines how long data is considered "fresh"—during this time, React Query won't refetch the data automatically. After <code className="bg-gray-100 px-1 rounded">staleTime</code> expires, data becomes "stale" but remains in cache. <code className="bg-gray-100 px-1 rounded">gcTime</code> determines how long unused (inactive) data stays in cache before being garbage collected. Setting <code className="bg-gray-100 px-1 rounded">staleTime: 0</code> means data is immediately stale (good for real-time data), while <code className="bg-gray-100 px-1 rounded">staleTime: Infinity</code> means data never becomes stale (good for static data).
+        </p>
         <CodeBlock
           title="Answer"
           code={`// staleTime: How long data is considered fresh
@@ -97,6 +145,9 @@ const { data } = useQuery({
         <h2 className="text-3xl font-bold mb-4 text-gray-900">Queries</h2>
         
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q4: How do you handle dependent queries?</h3>
+        <p className="text-gray-700 mb-4">
+          Dependent queries are queries that need data from another query before they can execute. The <code className="bg-gray-100 px-1 rounded">enabled</code> option is the key to implementing dependent queries. Set <code className="bg-gray-100 px-1 rounded">enabled: false</code> initially, then set it to <code className="bg-gray-100 px-1 rounded">true</code> when the dependency is available. You can use boolean expressions like <code className="bg-gray-100 px-1 rounded">enabled: !!user</code> to automatically enable the query when the user data exists. For multiple dependencies, chain them with logical operators like <code className="bg-gray-100 px-1 rounded">enabled: !!user && !!posts</code>. This pattern ensures queries execute in the correct order and prevents unnecessary API calls.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// Use 'enabled' option to make queries dependent
@@ -127,6 +178,9 @@ function UserProfile({ userId }) {
         />
 
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q5: How do you implement infinite scrolling?</h3>
+        <p className="text-gray-700 mb-4">
+          Infinite scrolling is implemented using <code className="bg-gray-100 px-1 rounded">useInfiniteQuery</code>, which manages paginated data across multiple pages. The hook requires <code className="bg-gray-100 px-1 rounded">initialPageParam</code> (the starting page parameter) and <code className="bg-gray-100 px-1 rounded">getNextPageParam</code> (a function that extracts the next page parameter from the last page's response). Data is stored in <code className="bg-gray-100 px-1 rounded">data.pages</code> (array of page results) and can be flattened with <code className="bg-gray-100 px-1 rounded">data.pages.flatMap()</code>. Call <code className="bg-gray-100 px-1 rounded">fetchNextPage()</code> when the user scrolls near the bottom, and use <code className="bg-gray-100 px-1 rounded">hasNextPage</code> to determine if more data is available.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// Use useInfiniteQuery for pagination
@@ -166,6 +220,9 @@ function InfinitePosts() {
         />
 
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q6: How do you prefetch data?</h3>
+        <p className="text-gray-700 mb-4">
+          Prefetching improves perceived performance by loading data before it's needed. Use <code className="bg-gray-100 px-1 rounded">queryClient.prefetchQuery()</code> to fetch and cache data in the background. Common prefetching strategies include prefetching on hover (when user hovers over a link), prefetching on route change (using <code className="bg-gray-100 px-1 rounded">useEffect</code> with route dependencies), or prefetching related data after a mutation. Prefetching with an appropriate <code className="bg-gray-100 px-1 rounded">staleTime</code> ensures the data stays fresh when the user navigates to the page. This creates a seamless user experience where data appears instantly.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// Use prefetchQuery for prefetching
@@ -211,6 +268,9 @@ function UserList() {
         <h2 className="text-3xl font-bold mb-4 text-gray-900">Mutations</h2>
         
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q7: How do you implement optimistic updates?</h3>
+        <p className="text-gray-700 mb-4">
+          Optimistic updates provide instant UI feedback by updating the cache before the server responds. The pattern involves three steps: cancel outgoing refetches to prevent race conditions, snapshot the previous data for rollback, and optimistically update the cache. Use <code className="bg-gray-100 px-1 rounded">onMutate</code> to perform the optimistic update and return a context object with the previous data. In <code className="bg-gray-100 px-1 rounded">onError</code>, use the context to rollback the optimistic update if the mutation fails. Finally, use <code className="bg-gray-100 px-1 rounded">onSettled</code> to refetch and ensure data consistency. This pattern makes the UI feel instant and responsive.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// Use onMutate for optimistic updates
@@ -252,6 +312,9 @@ updateUser.mutate({ id: 1, name: 'New Name' });`}
         />
 
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q8: How do you invalidate queries after mutation?</h3>
+        <p className="text-gray-700 mb-4">
+          After mutations, you need to update the cache to reflect server changes. There are several strategies: <code className="bg-gray-100 px-1 rounded">invalidateQueries()</code> marks queries as stale and triggers refetches for active queries, <code className="bg-gray-100 px-1 rounded">setQueryData()</code> directly updates the cache with new data (useful when you have the updated data from the mutation response), or a combination of both. Use <code className="bg-gray-100 px-1 rounded">onSuccess</code> or <code className="bg-gray-100 px-1 rounded">onSettled</code> callbacks to trigger invalidation. <code className="bg-gray-100 px-1 rounded">onSettled</code> runs regardless of success/failure, making it ideal for ensuring data consistency. You can invalidate specific queries, all queries matching a pattern, or use predicates for custom matching logic.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// Use onSuccess or onSettled to invalidate
@@ -289,6 +352,9 @@ function useCreatePost() {
         <h2 className="text-3xl font-bold mb-4 text-gray-900">Advanced</h2>
         
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q9: How do you handle race conditions?</h3>
+        <p className="text-gray-700 mb-4">
+          React Query automatically handles race conditions for queries by canceling previous requests when the query key changes. However, for mutations, you may need additional strategies. React Query provides an <code className="bg-gray-100 px-1 rounded">AbortSignal</code> to each query function, which you can pass to fetch requests to cancel them. For mutations, use version numbers or timestamps to ensure only the latest mutation result is applied. The <code className="bg-gray-100 px-1 rounded">cancelQueries()</code> method can also be used to cancel in-flight queries. React Query's automatic request deduplication and cancellation prevent most race conditions, but understanding these mechanisms helps in edge cases.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// React Query handles race conditions automatically
@@ -329,6 +395,9 @@ function useUpdateUser() {
         />
 
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q10: How do you test React Query hooks?</h3>
+        <p className="text-gray-700 mb-4">
+          Testing React Query hooks requires wrapping components in a <code className="bg-gray-100 px-1 rounded">QueryClientProvider</code> with a test QueryClient. Create a test QueryClient with <code className="bg-gray-100 px-1 rounded">retry: false</code> to fail fast in tests. Use <code className="bg-gray-100 px-1 rounded">renderHook</code> from <code className="bg-gray-100 px-1 rounded">@testing-library/react</code> to test hooks in isolation. Mock API calls using <code className="bg-gray-100 px-1 rounded">jest.spyOn</code> or fetch mocking libraries. Use <code className="bg-gray-100 px-1 rounded">waitFor</code> to wait for async operations to complete. Test loading states, success states, error states, and side effects like cache updates. For integration tests, use tools like MSW (Mock Service Worker) to mock API responses.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// Use @testing-library/react-hooks and createTestQueryClient
@@ -381,6 +450,9 @@ test('handles error', async () => {
         <h2 className="text-3xl font-bold mb-4 text-gray-900">Performance</h2>
         
         <h3 className="text-2xl font-semibold mb-3 text-gray-900 mt-6">Q11: How do you optimize React Query performance?</h3>
+        <p className="text-gray-700 mb-4">
+          React Query performance optimization involves several strategies. Use <code className="bg-gray-100 px-1 rounded">select</code> to transform data and subscribe only to specific data slices, reducing re-renders when unrelated data changes. Set appropriate <code className="bg-gray-100 px-1 rounded">staleTime</code> values to reduce unnecessary refetches. Use pagination with <code className="bg-gray-100 px-1 rounded">useInfiniteQuery</code> instead of fetching all data at once. Debounce search queries to reduce API calls. Prefetch related data to improve perceived performance. React Query's structural sharing (enabled by default) prevents unnecessary re-renders when data structure is the same. Limit cache size and use code splitting to load queries on demand. These optimizations reduce network requests, improve rendering performance, and enhance user experience.
+        </p>
         <CodeBlock
           title="Answer"
           code={`// 1. Use select to transform data
